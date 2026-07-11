@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chi non ti segue · Instagram Unfollowers Checker</title>
+<style>
+  :root{
+    --ig-grad:linear-gradient(45deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);
+    --ink:#262626; --muted:#8e8e8e; --line:#dbdbdb; --line-soft:#efefef;
+    --surface:#ffffff; --field:#fafafa; --link:#0095f6; --pink:#dc2743;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; min-height:100vh; padding:20px;
+    background:var(--ig-grad); color:var(--ink);
+    font-family:var(--font); line-height:1.5;
+    display:flex; justify-content:center; align-items:flex-start;
+  }
+  .card{
+    background:var(--surface); width:100%; max-width:620px;
+    margin:clamp(10px,2vh,24px) 0;
+    padding:clamp(26px,5vw,44px) clamp(22px,5vw,38px);
+    border-radius:20px; box-shadow:0 15px 35px rgba(0,0,0,.2);
+  }
+
+  h1{font-size:clamp(34px,8vw,46px);font-weight:800;margin:0 0 4px;letter-spacing:-.02em}
+  .subtitle{font-size:14px;color:var(--muted);margin:0 0 14px}
+  .howto{font-size:13px;color:var(--muted);margin:0 0 26px}
+  .howto b{color:var(--ink);font-weight:600}
+  .howto code{background:var(--field);border:1px solid var(--line);border-radius:5px;padding:2px 6px;font-size:12px}
+
+  .foot{margin-top:28px;padding-top:16px;border-top:1px solid var(--line-soft);
+    text-align:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+  /* zone di caricamento: 2 colonne su desktop, impilate su mobile */
+  .zones{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+  @media(max-width:560px){.zones{grid-template-columns:1fr}}
+  .zone{
+    background:var(--field);border:1.5px dashed var(--line);border-radius:12px;
+    padding:18px 16px;cursor:pointer;transition:border-color .15s,background .15s;
+    display:flex;flex-direction:column;gap:5px;min-height:120px;
+  }
+  .zone:hover,.zone:focus-visible{border-color:var(--pink);outline:none}
+  .zone.drag{border-color:var(--pink);background:#fdeef2}
+  .zone.ok{border-style:solid;border-color:var(--pink)}
+  .zone .role{font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+    font-weight:700;color:var(--pink)}
+  .zone .hint{color:var(--muted);font-size:13px}
+  .zone .hint code{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:12px}
+  .zone .file{font-size:12px;color:var(--muted);word-break:break-all}
+  .zone .count{font-size:28px;font-weight:800;line-height:1;margin-top:auto}
+  .zone .count small{font-size:13px;font-weight:400;color:var(--muted)}
+
+  button.go{
+    background:var(--ig-grad);color:#fff;border:none;
+    padding:15px;width:100%;border-radius:10px;font-size:16px;font-weight:700;
+    cursor:pointer;margin-top:6px;transition:transform .2s,box-shadow .2s;
+  }
+  button.go:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(220,39,67,.4)}
+  button.go:active{transform:translateY(0)}
+  button.go:disabled{background:var(--line);color:#fff;cursor:not-allowed;transform:none;box-shadow:none}
+
+  .msg{font-size:13px;color:var(--pink);margin:12px 0 0;min-height:1em}
+
+  #results{margin-top:28px;display:none}
+  .rhead{display:flex;align-items:center;justify-content:space-between;gap:12px;
+    flex-wrap:wrap;font-weight:700;font-size:17px;padding-bottom:12px;
+    border-bottom:1px solid var(--line);margin-bottom:6px}
+  .rhead .count-hl{color:var(--pink)}
+  .btn-csv{background:none;border:1px solid var(--line);border-radius:8px;
+    padding:7px 12px;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;
+    transition:border-color .15s}
+  .btn-csv:hover,.btn-csv:focus-visible{border-color:var(--pink);outline:none}
+
+  ul.list{list-style:none;padding:0;margin:0;max-height:340px;overflow-y:auto}
+  ul.list li{padding:11px 2px;border-bottom:1px solid var(--line-soft);
+    display:flex;align-items:center;justify-content:space-between;gap:12px}
+  ul.list li .handle{font-weight:600;word-break:break-all}
+  ul.list li a{text-decoration:none;color:var(--link);font-weight:600;font-size:14px;flex:none}
+  ul.list li a:hover{text-decoration:underline}
+  li.empty{display:block;color:var(--muted);text-align:center;padding:18px 0;font-weight:600}
+  ul.list::-webkit-scrollbar{width:6px}
+  ul.list::-webkit-scrollbar-track{background:#f1f1f1;border-radius:10px}
+  ul.list::-webkit-scrollbar-thumb{background:#c1c1c1;border-radius:10px}
+  ul.list::-webkit-scrollbar-thumb:hover{background:#a8a8a8}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="card">
+
+  <h1>Unfollowers</h1>
+  <p class="subtitle">Scopri chi non ricambia il follow 💔</p>
+  <p class="howto">Gli export si scaricano da Instagram in
+    <b>Impostazioni &rarr; Centro gestione account &rarr; Le tue informazioni &rarr; Esporta le tue informazioni</b>,
+    scegliendo <code>Follower e persone seguite</code>.</p>
+
+  <div class="zones">
+    <label class="zone" id="z-following" tabindex="0" aria-label="Carica il file following">
+      <span class="role">&rarr; following</span>
+      <span class="hint" data-role="hint">Trascina o clicca &mdash; <code>following.json</code></span>
+      <span class="file" data-role="file" hidden></span>
+      <span class="count" data-role="count" hidden></span>
+      <input type="file" accept=".csv,.json,.txt,.html" hidden>
+    </label>
+    <label class="zone" id="z-followers" tabindex="0" aria-label="Carica il file followers">
+      <span class="role">&larr; followers</span>
+      <span class="hint" data-role="hint">Trascina o clicca &mdash; <code>followers.json</code></span>
+      <span class="file" data-role="file" hidden></span>
+      <span class="count" data-role="count" hidden></span>
+      <input type="file" accept=".csv,.json,.txt,.html" hidden>
+    </label>
+  </div>
+
+  <button class="go" id="go" disabled>Scopri i traditori</button>
+  <p class="msg" id="msg" role="status" aria-live="polite"></p>
+
+  <div id="results">
+    <div class="rhead">
+      <span id="rtitle"></span>
+      <button class="btn-csv" id="csv">Scarica CSV</button>
+    </div>
+    <ul class="list" id="list"></ul>
+  </div>
+
+  <p class="foot">Strumento locale · i file restano nel browser</p>
+
+</div>
+
+<script>
+// --- parser CSV minimale (gestisce virgolette e doppie-virgolette "") ---
+function parseCSVLine(line){
+  const out=[]; let cur=''; let q=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(q){
+      if(c==='"'){ if(line[i+1]==='"'){cur+='"';i++;} else q=false; }
+      else cur+=c;
+    } else {
+      if(c==='"') q=true;
+      else if(c===',') { out.push(cur); cur=''; }
+      else cur+=c;
+    }
+  }
+  out.push(cur);
+  return out;
+}
+
+// Legge gli username dall'export: prova JSON, poi la colonna CSV,
+// infine gli URL instagram.com/<user>.
+function readUsernames(text){
+  text = text.replace(/^\uFEFF/,'');
+
+  // 1) JSON (formato "Esporta le tue informazioni")
+  try{
+    const data = JSON.parse(text);
+    const recs = Array.isArray(data)
+      ? data
+      : (Object.values(data).find(v => Array.isArray(v)) || []);
+    const users = new Set();
+    for(const rec of recs){
+      if(!rec || typeof rec !== 'object') continue;
+      const sld = rec.string_list_data || [];
+      let u = '';
+      for(const it of sld){ if(it && it.value){ u = it.value; break; } }
+      if(!u && rec.title) u = rec.title;
+      if(!u){
+        for(const it of sld){
+          const m = it && it.href && it.href.match(/instagram\.com\/(?:_u\/)?([A-Za-z0-9._]+)/);
+          if(m){ u = m[1]; break; }
+        }
+      }
+      if(u) users.add(u.trim().toLowerCase());
+    }
+    if(users.size) return users;
+  }catch(e){ /* non JSON: provo CSV */ }
+
+  // 2) CSV (colonna string_list_data__value / title)
+  const lines = text.split(/\r?\n/).filter(l => l.length);
+  if(lines.length){
+    let rows = lines.map(parseCSVLine);
+    if(rows[0].length === 1 && rows[0][0].includes(',')){
+      rows = rows.map(r => parseCSVLine(r[0]));
+    }
+    const header = rows[0];
+    const valI = header.indexOf('string_list_data__value');
+    const titleI = header.indexOf('title');
+    if(valI !== -1 || titleI !== -1){
+      const users = new Set();
+      for(let i=1;i<rows.length;i++){
+        const r = rows[i];
+        let u = (valI !== -1 && r[valI]) ? r[valI].trim() : '';
+        if(!u && titleI !== -1 && r[titleI]) u = r[titleI].trim();
+        if(u) users.add(u.toLowerCase());
+      }
+      if(users.size) return users;
+    }
+  }
+
+  // 3) fallback: username dagli URL
+  const users = new Set();
+  const re = /instagram\.com\/(?:_u\/)?([A-Za-z0-9._]+)/g;
+  let m;
+  while((m = re.exec(text)) !== null){ if(m[1] !== '_u') users.add(m[1].toLowerCase()); }
+  return users;
+}
+
+const state = { following:null, followers:null, result:null };
+
+function wireZone(id, key){
+  const zone = document.getElementById(id);
+  const input = zone.querySelector('input[type=file]');
+  const hint = zone.querySelector('[data-role=hint]');
+  const fileEl = zone.querySelector('[data-role=file]');
+  const countEl = zone.querySelector('[data-role=count]');
+
+  async function load(file){
+    if(!file) return;
+    const users = readUsernames(await file.text());
+    state[key] = users;
+    zone.classList.add('ok');
+    hint.hidden = true;
+    fileEl.hidden = false; fileEl.textContent = file.name;
+    countEl.hidden = false;
+    countEl.innerHTML = users.size + ' <small>account</small>';
+    document.getElementById('go').disabled = !(state.following && state.followers);
+  }
+
+  zone.addEventListener('click', () => input.click());
+  zone.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){e.preventDefault();input.click();} });
+  input.addEventListener('change', e => load(e.target.files[0]));
+  ['dragenter','dragover'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.add('drag'); }));
+  ['dragleave','drop'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.remove('drag'); }));
+  zone.addEventListener('drop', e => load(e.dataTransfer.files[0]));
+}
+
+wireZone('z-following','following');
+wireZone('z-followers','followers');
+
+const msg = document.getElementById('msg');
+const results = document.getElementById('results');
+const rtitle = document.getElementById('rtitle');
+const list = document.getElementById('list');
+
+document.getElementById('go').addEventListener('click', () => {
+  msg.textContent = '';
+  const notBack = [];
+  for(const u of state.following){
+    if(!state.followers.has(u) && !u.startsWith('__deleted__')) notBack.push(u);
+  }
+  notBack.sort();
+  state.result = notBack;
+  render();
+});
+
+function render(){
+  const notBack = state.result;
+  results.style.display = 'block';
+  list.innerHTML = '';
+  if(notBack.length){
+    rtitle.innerHTML = `<span class="count-hl">${notBack.length}</span> non ti seguono`;
+    notBack.forEach(u => {
+      const li = document.createElement('li');
+      li.innerHTML =
+        `<span class="handle">@${u}</span>` +
+        `<a href="https://www.instagram.com/${encodeURIComponent(u)}" target="_blank" rel="noopener">Apri profilo &rarr;</a>`;
+      list.appendChild(li);
+    });
+  } else {
+    rtitle.textContent = 'Nessun traditore 🎉';
+    const li = document.createElement('li');
+    li.className = 'empty';
+    li.textContent = 'Tutti quelli che segui ti ricambiano.';
+    list.appendChild(li);
+  }
+  results.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+document.getElementById('csv').addEventListener('click', () => {
+  if(!state.result) return;
+  const csv = 'username\n' + state.result.map(u => `"${u}"`).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  a.download = 'non_ti_seguono.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+</script>
+</body>
+</html>
